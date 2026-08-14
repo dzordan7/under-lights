@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: underlights-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: underlights
+      POSTGRES_PASSWORD: underlights_pass
+      POSTGRES_DB: underlights
+    ports:
+      - "5432:5432"
+    volumes:
+      - underlights-data:/var/lib/postgresql/data
+
+volumes:
+  underlights-data:

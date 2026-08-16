@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { TeamsModule } from './teams/teams.module';
+import { PlayersModule } from './players/players.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { TeamsModule } from './teams/teams.module';
     UsersModule,
     AuthModule,
     TeamsModule,
+    PlayersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -5,8 +5,10 @@ import {
   OneToOne,
   JoinColumn,
   CreateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { User } from '../users/user.entity';
+import { Player } from 'src/players/player.entity';
 
 @Entity()
 export class Team {
@@ -22,6 +24,9 @@ export class Team {
   @OneToOne(() => User, (user) => user.tim)
   @JoinColumn({ name: 'kapiten_id' })
   kapiten!: User;
+
+  @OneToMany(() => Player, (player) => player.team)
+  igraci!: Player[];
 
   @CreateDateColumn()
   created_at!: Date;

@@ -3,8 +3,10 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  OneToOne,
 } from 'typeorm';
 import { Role } from './role.enum';
+import { Team } from 'src/teams/team.entity';
 
 @Entity()
 export class User {
@@ -22,6 +24,9 @@ export class User {
 
   @Column({ type: 'enum', enum: Role })
   uloga!: Role;
+
+  @OneToOne(() => Team, (team) => team.kapiten)
+  tim?: Team;
 
   @CreateDateColumn()
   created_at!: Date;

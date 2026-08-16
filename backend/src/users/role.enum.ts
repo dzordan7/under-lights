@@ -1,5 +1,5 @@
-export enum Role{
-    ADMIN="ADMIN",
-    KAPITE="KAPITEN",
-    IGRAC="IGRAC",
+export enum Role {
+  ADMIN = 'ADMIN',
+  KAPITEN = 'KAPITEN',
+  IGRAC = 'IGRAC',
 }

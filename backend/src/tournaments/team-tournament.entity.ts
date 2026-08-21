@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { Team } from '../teams/team.entity';
 import { Tournament } from './tournament.entity';
+import { Group } from './group.entity';
 import { RegistrationStatus } from './registration-status.enum';
 
 @Entity()
@@ -24,6 +25,10 @@ export class TeamTournament {
   @ManyToOne(() => Tournament, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'tournament_id' })
   tournament!: Tournament;
+
+  @ManyToOne(() => Group, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'group_id' })
+  group?: Group;
 
   @Column({
     type: 'enum',

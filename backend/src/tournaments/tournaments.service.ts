@@ -8,10 +8,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, ILike } from 'typeorm';
 import { Tournament } from './tournament.entity';
 import { TeamTournament } from './team-tournament.entity';
+import { Group } from './group.entity';
+import { Match } from '../matches/match.entity';
 import { Team } from '../teams/team.entity';
 import { CreateTournamentDto } from './dto/create-tournament.dto';
 import { RegistrationStatus } from './registration-status.enum';
 import { TournamentStatus } from './tournament-status.enum';
+import { MatchPhase } from '../matches/match-phase.enum';
+import { MatchStatus } from '../matches/match-status.enum';
 
 @Injectable()
 export class TournamentsService {
@@ -22,6 +26,10 @@ export class TournamentsService {
     private teamTournamentRepository: Repository<TeamTournament>,
     @InjectRepository(Team)
     private teamsRepository: Repository<Team>,
+    @InjectRepository(Group)
+    private groupRepository: Repository<Group>,
+    @InjectRepository(Match)
+    private matchRepository: Repository<Match>,
   ) {}
 
   async create(dto: CreateTournamentDto, adminId: number): Promise<Tournament> {
@@ -110,5 +118,98 @@ export class TournamentsService {
 
     registration.status_prijave = status;
     return this.teamTournamentRepository.save(registration);
+  }
+
+  async generateGroupStage(tournamentId: number): Promise<Group[]> {
+    const tournament = await this.findOne(tournamentId);
+
+    if (tournament.status !== TournamentStatus.PRIJAVE_OTVORENE) {
+      throw new ConflictException(
+        'Zreb je vec izvrsen ili turnir nije u fazi prijava',
+      );
+    }
+
+    const approvedRegistrations = await this.teamTournamentRepository.find({
+      where: {
+        tournament: { id: tournamentId },
+        status_prijave: RegistrationStatus.ODOBRENO,
+      },
+      relations: { team: true },
+    });
+
+    const minimumTeams = tournament.broj_grupa * 2;
+    if (approvedRegistrations.length < minimumTeams) {
+      throw new BadRequestException(
+        `Potrebno je najmanje ${minimumTeams} odobrenih timova za ${tournament.broj_grupa} grupa (trenutno ima ${approvedRegistrations.length})`,
+      );
+    }
+
+    const shuffled = this.shuffleArray(approvedRegistrations);
+
+    const groups: Group[] = [];
+    for (let i = 0; i < tournament.broj_grupa; i++) {
+      const group = this.groupRepository.create({
+        tournament,
+        naziv: `Grupa ${String.fromCharCode(65 + i)}`,
+      });
+      groups.push(await this.groupRepository.save(group));
+    }
+
+    const groupAssignments = new Map<number, TeamTournament[]>();
+    groups.forEach((g) => groupAssignments.set(g.id, []));
+
+    shuffled.forEach((registration, index) => {
+      const group = groups[index % tournament.broj_grupa];
+      registration.group = group;
+      groupAssignments.get(group.id)!.push(registration);
+    });
+
+    await this.teamTournamentRepository.save(shuffled);
+
+    const matchesToCreate: Match[] = [];
+    for (const group of groups) {
+      const teamsInGroup = groupAssignments.get(group.id)!;
+      for (let i = 0; i < teamsInGroup.length; i++) {
+        for (let j = i + 1; j < teamsInGroup.length; j++) {
+          const match = this.matchRepository.create({
+            tournament,
+            group,
+            faza: MatchPhase.GRUPNA,
+            status: MatchStatus.ZAKAZAN,
+            teamA: teamsInGroup[i].team,
+            teamB: teamsInGroup[j].team,
+          });
+          matchesToCreate.push(match);
+        }
+      }
+    }
+    await this.matchRepository.save(matchesToCreate);
+
+    tournament.status = TournamentStatus.GRUPNA_FAZA;
+    await this.tournamentsRepository.save(tournament);
+
+    return groups;
+  }
+
+  async findGroups(tournamentId: number): Promise<Group[]> {
+    return this.groupRepository.find({
+      where: { tournament: { id: tournamentId } },
+    });
+  }
+
+  async findMatches(tournamentId: number): Promise<Match[]> {
+    return this.matchRepository.find({
+      where: { tournament: { id: tournamentId } },
+      relations: { teamA: true, teamB: true, group: true },
+    });
+  }
+
+  private shuffleArray<T>(array: T[]): T[] {
+    const result = [...array];
+    for (let i = result.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [result[i], result[j]] = [result[j], result[i]];
+    }
+    return result;
   }
 }

@@ -1,0 +1,7 @@
+export enum MatchPhase {
+  GRUPNA = 'GRUPNA',
+  OSMINA = 'OSMINA',
+  CETVRTFINALE = 'CETVRTFINALE',
+  POLUFINALE = 'POLUFINALE',
+  FINALE = 'FINALE',
+}

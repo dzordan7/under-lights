@@ -77,4 +77,21 @@ export class TournamentsController {
       user.userId,
     );
   }
+
+  @Post(':id/draw')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  generateGroupStage(@Param('id', ParseIntPipe) id: number) {
+    return this.tournamentsService.generateGroupStage(id);
+  }
+
+  @Get(':id/groups')
+  findGroups(@Param('id', ParseIntPipe) id: number) {
+    return this.tournamentsService.findGroups(id);
+  }
+
+  @Get(':id/matches')
+  findMatches(@Param('id', ParseIntPipe) id: number) {
+    return this.tournamentsService.findMatches(id);
+  }
 }

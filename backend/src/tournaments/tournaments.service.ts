@@ -212,4 +212,230 @@ export class TournamentsService {
     }
     return result;
   }
+
+  async findStandings(tournamentId: number): Promise<TeamTournament[]> {
+    const standings = await this.teamTournamentRepository.find({
+      where: {
+        tournament: { id: tournamentId },
+        status_prijave: RegistrationStatus.ODOBRENO,
+      },
+      relations: { team: true, group: true },
+    });
+
+    return standings.sort((a, b) => {
+      if (b.bodovi !== a.bodovi) {
+        return b.bodovi - a.bodovi;
+      }
+      const golRazlikaA = a.postignuti_golovi - a.primljeni_golovi;
+      const golRazlikaB = b.postignuti_golovi - b.primljeni_golovi;
+      if (golRazlikaB !== golRazlikaA) {
+        return golRazlikaB - golRazlikaA;
+      }
+      return b.postignuti_golovi - a.postignuti_golovi;
+    });
+  }
+
+  async findStandingsByGroup(
+    tournamentId: number,
+  ): Promise<Map<number, TeamTournament[]>> {
+    const standings = await this.teamTournamentRepository.find({
+      where: {
+        tournament: { id: tournamentId },
+        status_prijave: RegistrationStatus.ODOBRENO,
+      },
+      relations: { team: true, group: true },
+    });
+
+    const byGroup = new Map<number, TeamTournament[]>();
+
+    for (const entry of standings) {
+      if (!entry.group) continue;
+      const groupId = entry.group.id;
+      if (!byGroup.has(groupId)) {
+        byGroup.set(groupId, []);
+      }
+      byGroup.get(groupId)!.push(entry);
+    }
+
+    for (const [groupId, teams] of byGroup) {
+      byGroup.set(groupId, this.sortStandings(teams));
+    }
+
+    return byGroup;
+  }
+
+  private sortStandings(teams: TeamTournament[]): TeamTournament[] {
+    return [...teams].sort((a, b) => {
+      if (b.bodovi !== a.bodovi) {
+        return b.bodovi - a.bodovi;
+      }
+      const golRazlikaA = a.postignuti_golovi - a.primljeni_golovi;
+      const golRazlikaB = b.postignuti_golovi - b.primljeni_golovi;
+      if (golRazlikaB !== golRazlikaA) {
+        return golRazlikaB - golRazlikaA;
+      }
+      return b.postignuti_golovi - a.postignuti_golovi;
+    });
+  }
+
+  async generateKnockoutStage(tournamentId: number): Promise<Match[]> {
+    const tournament = await this.findOne(tournamentId);
+
+    if (tournament.status !== TournamentStatus.GRUPNA_FAZA) {
+      throw new ConflictException('Turnir nije u grupnoj fazi');
+    }
+
+    const nezavrseniMecevi = await this.matchRepository.count({
+      where: {
+        tournament: { id: tournamentId },
+        faza: MatchPhase.GRUPNA,
+        status: MatchStatus.ZAKAZAN,
+      },
+    });
+
+    if (nezavrseniMecevi > 0) {
+      throw new BadRequestException(
+        `Grupna faza nije zavrsena — ostalo je jos ${nezavrseniMecevi} neodigranih meceva`,
+      );
+    }
+
+    const byGroup = await this.findStandingsByGroup(tournamentId);
+    const groupIds = Array.from(byGroup.keys()).sort((a, b) => a - b);
+
+    const prvoplasirani: TeamTournament[] = [];
+    const drugoplasirani: TeamTournament[] = [];
+
+    for (const groupId of groupIds) {
+      const teams = byGroup.get(groupId)!;
+      if (teams.length < 2) {
+        throw new BadRequestException(
+          'Svaka grupa mora imati najmanje dva tima',
+        );
+      }
+      prvoplasirani.push(teams[0]);
+      drugoplasirani.push(teams[1]);
+    }
+
+    const ukupnoKvalifikovanih = prvoplasirani.length + drugoplasirani.length;
+    const faza = this.odrediFazu(ukupnoKvalifikovanih);
+
+    const parovi: Array<[TeamTournament, TeamTournament]> = [];
+    const brojGrupa = groupIds.length;
+
+    for (let i = 0; i < brojGrupa; i++) {
+      const protivnickaGrupa = (i + 1) % brojGrupa;
+      parovi.push([prvoplasirani[i], drugoplasirani[protivnickaGrupa]]);
+    }
+
+    const meceviZaKreiranje = parovi.map(([timA, timB]) =>
+      this.matchRepository.create({
+        tournament,
+        group: undefined,
+        faza,
+        status: MatchStatus.ZAKAZAN,
+        teamA: timA.team,
+        teamB: timB.team,
+      }),
+    );
+
+    const sacuvaniMecevi = await this.matchRepository.save(meceviZaKreiranje);
+
+    tournament.status = TournamentStatus.ELIMINACIONA_FAZA;
+    await this.tournamentsRepository.save(tournament);
+
+    return sacuvaniMecevi;
+  }
+
+  private odrediFazu(brojTimova: number): MatchPhase {
+    if (brojTimova >= 16) return MatchPhase.OSMINA;
+    if (brojTimova >= 8) return MatchPhase.CETVRTFINALE;
+    if (brojTimova >= 4) return MatchPhase.POLUFINALE;
+    return MatchPhase.FINALE;
+  }
+
+  async advanceKnockoutRound(tournamentId: number): Promise<Match[]> {
+    const tournament = await this.findOne(tournamentId);
+
+    if (tournament.status !== TournamentStatus.ELIMINACIONA_FAZA) {
+      throw new ConflictException('Turnir nije u eliminacionoj fazi');
+    }
+
+    const trenutnaFaza = await this.nadjiTrenutnuFazu(tournamentId);
+
+    const meceviFaze = await this.matchRepository.find({
+      where: { tournament: { id: tournamentId }, faza: trenutnaFaza },
+      relations: { teamA: true, teamB: true },
+      order: { id: 'ASC' },
+    });
+
+    const neodigrani = meceviFaze.filter(
+      (m) => m.status === MatchStatus.ZAKAZAN,
+    );
+    if (neodigrani.length > 0) {
+      throw new BadRequestException(
+        `Nisu odigrani svi mecevi trenutne faze — ostalo je jos ${neodigrani.length}`,
+      );
+    }
+
+    const pobednici = meceviFaze.map((m) => this.odrediPobednika(m));
+
+    if (pobednici.length === 1) {
+      tournament.status = TournamentStatus.ZAVRSEN;
+      await this.tournamentsRepository.save(tournament);
+      return [];
+    }
+
+    const sledecaFaza = this.odrediFazu(pobednici.length);
+
+    const noviMecevi: Match[] = [];
+    for (let i = 0; i < pobednici.length; i += 2) {
+      noviMecevi.push(
+        this.matchRepository.create({
+          tournament,
+          group: undefined,
+          faza: sledecaFaza,
+          status: MatchStatus.ZAKAZAN,
+          teamA: pobednici[i],
+          teamB: pobednici[i + 1],
+        }),
+      );
+    }
+
+    return this.matchRepository.save(noviMecevi);
+  }
+
+  private odrediPobednika(match: Match): Team {
+    if (match.rezultat_a === match.rezultat_b) {
+      throw new BadRequestException(
+        `Mec ${match.id} je zavrsen nereseno — u eliminacionoj fazi mora postojati pobednik`,
+      );
+    }
+    return match.rezultat_a! > match.rezultat_b! ? match.teamA : match.teamB;
+  }
+
+  private async nadjiTrenutnuFazu(tournamentId: number): Promise<MatchPhase> {
+    const redosled = [
+      MatchPhase.OSMINA,
+      MatchPhase.CETVRTFINALE,
+      MatchPhase.POLUFINALE,
+      MatchPhase.FINALE,
+    ];
+
+    let poslednja: MatchPhase | null = null;
+
+    for (const faza of redosled) {
+      const broj = await this.matchRepository.count({
+        where: { tournament: { id: tournamentId }, faza },
+      });
+      if (broj > 0) {
+        poslednja = faza;
+      }
+    }
+
+    if (!poslednja) {
+      throw new BadRequestException('Nema meceva eliminacione faze');
+    }
+
+    return poslednja;
+  }
 }

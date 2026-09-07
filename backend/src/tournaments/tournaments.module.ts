@@ -5,12 +5,14 @@ import { TeamTournament } from './team-tournament.entity';
 import { Group } from './group.entity';
 import { Match } from '../matches/match.entity';
 import { Team } from '../teams/team.entity';
+import { PlayersModule } from '../players/players.module';
 import { TournamentsService } from './tournaments.service';
 import { TournamentsController } from './tournaments.controller';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Tournament, TeamTournament, Team, Group, Match]),
+    PlayersModule,
   ],
   controllers: [TournamentsController],
   providers: [TournamentsService],

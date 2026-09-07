@@ -18,10 +18,14 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../users/role.enum';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { PlayersService } from 'src/players/players.service';
 
 @Controller('tournaments')
 export class TournamentsController {
-  constructor(private tournamentsService: TournamentsService) {}
+  constructor(
+    private tournamentsService: TournamentsService,
+    private playersService: PlayersService,
+  ) {}
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -93,5 +97,34 @@ export class TournamentsController {
   @Get(':id/matches')
   findMatches(@Param('id', ParseIntPipe) id: number) {
     return this.tournamentsService.findMatches(id);
+  }
+
+  @Get(':id/standings')
+  findStandings(@Param('id', ParseIntPipe) id: number) {
+    return this.tournamentsService.findStandings(id);
+  }
+
+  @Post(':id/knockout')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  generateKnockoutStage(@Param('id', ParseIntPipe) id: number) {
+    return this.tournamentsService.generateKnockoutStage(id);
+  }
+
+  @Post(':id/knockout/advance')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  advanceKnockoutRound(@Param('id', ParseIntPipe) id: number) {
+    return this.tournamentsService.advanceKnockoutRound(id);
+  }
+
+  @Get(':id/top-scorers')
+  getTopScorers(@Param('id', ParseIntPipe) id: number) {
+    return this.playersService.getTopScorers(id);
+  }
+
+  @Get(':id/top-goalkeepers')
+  getTopGoalkeepers(@Param('id', ParseIntPipe) id: number) {
+    return this.playersService.getTopGoalkeepers(id);
   }
 }

@@ -63,4 +63,9 @@ export class PlayersController {
   ) {
     return this.playersService.remove(id, user.userId);
   }
+
+  @Get('players/:id/profile')
+  getProfile(@Param('id', ParseIntPipe) id: number) {
+    return this.playersService.getProfile(id);
+  }
 }

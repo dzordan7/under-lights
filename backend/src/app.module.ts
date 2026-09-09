@@ -9,6 +9,7 @@ import { TeamsModule } from './teams/teams.module';
 import { PlayersModule } from './players/players.module';
 import { TournamentsModule } from './tournaments/tournaments.module';
 import { MatchesModule } from './matches/matches.module';
+import { AwardsModule } from './awards/awards.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { MatchesModule } from './matches/matches.module';
     PlayersModule,
     TournamentsModule,
     MatchesModule,
+    AwardsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,0 +1,83 @@
+<div class="section auth-wrap">
+  <div class="wrap">
+    <div class="card card-pad auth-card">
+      <h1>Otvori nalog</h1>
+      <p class="dim auth-lead">Kapiteni prijavljuju ekipe, organizatori vode turnire.</p>
+
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="form-row">
+          <label>Uloga</label>
+          <div class="role-pick">
+            <button
+              type="button"
+              class="role-btn"
+              [class.on]="form.controls.uloga.value === Role.KAPITEN"
+              (click)="izaberiUlogu(Role.KAPITEN)"
+            >
+              Kapiten ekipe
+            </button>
+            <button
+              type="button"
+              class="role-btn"
+              [class.on]="form.controls.uloga.value === Role.ADMIN"
+              (click)="izaberiUlogu(Role.ADMIN)"
+            >
+              Organizator
+            </button>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label for="ime">Ime i prezime</label>
+          <input
+            id="ime"
+            class="field"
+            type="text"
+            formControlName="ime"
+            placeholder="Ime Prezime"
+          />
+        </div>
+
+        <div class="form-row">
+          <label for="email">Email</label>
+          <input
+            id="email"
+            class="field"
+            [class.invalid]="form.controls.email.invalid && form.controls.email.touched"
+            type="email"
+            formControlName="email"
+            placeholder="ime@gmail.com"
+          />
+          @if (form.controls.email.invalid && form.controls.email.touched) {
+            <div class="form-error">Unesi validan email.</div>
+          }
+        </div>
+
+        <div class="form-row">
+          <label for="password">Lozinka</label>
+          <input
+            id="password"
+            class="field"
+            [class.invalid]="form.controls.password.invalid && form.controls.password.touched"
+            type="password"
+            formControlName="password"
+            placeholder="Najmanje 6 karaktera"
+          />
+          @if (form.controls.password.invalid && form.controls.password.touched) {
+            <div class="form-error">Lozinka mora imati najmanje 6 karaktera.</div>
+          }
+        </div>
+
+        @if (errorMsg()) {
+          <div class="form-error auth-server-error">{{ errorMsg() }}</div>
+        }
+
+        <button class="btn btn-primary btn-block" type="submit" [disabled]="loading()">
+          {{ loading() ? 'Kreiranje naloga...' : 'Napravi nalog' }}
+        </button>
+      </form>
+
+      <div class="auth-alt">Već imaš nalog? <a routerLink="/login">Prijavi se</a></div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,17 @@
+.auth-wrap { display: flex; justify-content: center; }
+.auth-card { width: 100%; max-width: 420px; }
+.auth-card h1 { font-size: 26px; margin-bottom: 6px; }
+.auth-lead { font-size: 14px; margin-bottom: 24px; }
+.auth-server-error { margin-bottom: 12px; }
+
+.role-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.role-btn {
+  border: 1px solid var(--line); border-radius: 8px; padding: 11px; font-size: 13.5px;
+  color: var(--dim); background: var(--bg-alt); text-align: center;
+}
+.role-btn.on { border-color: var(--orange); color: var(--orange); background: var(--orange-soft); }
+
+.auth-alt {
+  text-align: center; margin-top: 18px; font-size: 13.5px; color: var(--dim);
+}
+.auth-alt a { color: var(--orange); font-weight: 600; }

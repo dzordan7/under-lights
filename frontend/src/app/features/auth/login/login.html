@@ -1,0 +1,47 @@
+<div class="section auth-wrap">
+  <div class="wrap">
+    <div class="card card-pad auth-card">
+      <h1>Prijava</h1>
+      <p class="dim auth-lead">Uloguj se da upravljaš ekipom ili turnirom.</p>
+
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="form-row">
+          <label for="email">Email</label>
+          <input
+            id="email"
+            class="field"
+            [class.invalid]="form.controls.email.invalid && form.controls.email.touched"
+            type="email"
+            formControlName="email"
+            placeholder="ime@gmail.com"
+          />
+          @if (form.controls.email.invalid && form.controls.email.touched) {
+            <div class="form-error">Unesi validan email.</div>
+          }
+        </div>
+
+        <div class="form-row">
+          <label for="password">Lozinka</label>
+          <input
+            id="password"
+            class="field"
+            [class.invalid]="form.controls.password.invalid && form.controls.password.touched"
+            type="password"
+            formControlName="password"
+            placeholder="••••••••"
+          />
+        </div>
+
+        @if (errorMsg()) {
+          <div class="form-error auth-server-error">{{ errorMsg() }}</div>
+        }
+
+        <button class="btn btn-primary btn-block" type="submit" [disabled]="loading()">
+          {{ loading() ? 'Prijavljivanje...' : 'Prijavi se' }}
+        </button>
+      </form>
+
+      <div class="auth-alt">Nemaš nalog? <a routerLink="/register">Registruj se</a></div>
+    </div>
+  </div>
+</div>

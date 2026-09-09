@@ -1,1 +1,156 @@
-/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+  --bg: #0B0E14;
+  --bg-alt: #0E1220;
+  --card: #12161F;
+  --card-2: #171C27;
+  --line: #1F2530;
+  --line-soft: #191E28;
+  --orange: #FF6A2B;
+  --orange-soft: rgba(255, 106, 43, 0.12);
+  --orange-dim: #7A3A1E;
+  --blue: #3E7BFA;
+  --blue-soft: rgba(62, 123, 250, 0.12);
+  --green: #3ED598;
+  --green-soft: rgba(62, 213, 152, 0.12);
+  --amber: #FFB52B;
+  --amber-soft: rgba(255, 181, 43, 0.12);
+  --red: #F2565B;
+  --red-soft: rgba(242, 86, 91, 0.13);
+  --text: #F2F4F8;
+  --dim: #8B93A3;
+  --faint: #565E6E;
+
+  --wrap: 1180px;
+  --pad: 28px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body { min-height: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 { font-family: 'Oswald', sans-serif; letter-spacing: 0.01em; }
+.mono { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+input, select, textarea { font-family: inherit; }
+img { max-width: 100%; display: block; }
+
+:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+
+/* ---------- LAYOUT ---------- */
+.wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 var(--pad); }
+.section { padding: 64px 0; }
+.section-tight { padding: 40px 0; }
+
+/* ---------- GRID (responzivno) ---------- */
+.grid { display: grid; gap: 18px; }
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+/* ---------- BUTTONS ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font-size: 14px; font-weight: 600; padding: 10px 18px;
+  border-radius: 7px; border: 1px solid transparent; white-space: nowrap;
+}
+.btn-primary { background: var(--orange); color: #180900; }
+.btn-primary:hover { background: #ff7f4a; }
+.btn-secondary { background: var(--blue); color: #04091B; }
+.btn-secondary:hover { background: #5b90ff; }
+.btn-ghost { border-color: var(--line); color: var(--text); }
+.btn-ghost:hover { border-color: var(--dim); }
+.btn-danger { background: var(--red-soft); color: var(--red); }
+.btn-sm { font-size: 13px; padding: 7px 13px; }
+.btn:disabled { opacity: 0.38; cursor: not-allowed; }
+.btn-block { width: 100%; }
+
+/* ---------- CARDS / PANELS ---------- */
+.card {
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+}
+.card-pad { padding: 22px; }
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.panel-head {
+  padding: 15px 20px; border-bottom: 1px solid var(--line);
+  font-family: 'Oswald', sans-serif; font-size: 15px; color: var(--orange);
+  display: flex; justify-content: space-between; align-items: center; gap: 14px;
+}
+.panel-head .sub { font-family: 'Inter', sans-serif; font-size: 12px; color: var(--faint); }
+
+/* ---------- PILLS ---------- */
+.pill { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 100px; white-space: nowrap; }
+.pill-prijave { background: var(--blue-soft); color: var(--blue); }
+.pill-grupna { background: var(--green-soft); color: var(--green); }
+.pill-eliminaciona { background: var(--orange-soft); color: var(--orange); }
+.pill-zavrsen { background: rgba(139, 147, 163, 0.12); color: var(--dim); }
+.pill-cekanje { background: var(--amber-soft); color: var(--amber); }
+.pill-odobreno { background: var(--green-soft); color: var(--green); }
+.pill-odbijeno { background: var(--red-soft); color: var(--red); }
+
+/* ---------- FORMS ---------- */
+.field {
+  background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px 13px; color: var(--text); font-size: 14px; width: 100%;
+}
+.field::placeholder { color: var(--faint); }
+.field.invalid { border-color: var(--red); }
+select.field { cursor: pointer; }
+.form-row { margin-bottom: 15px; }
+.form-row label { display: block; font-size: 13px; color: var(--dim); margin-bottom: 6px; }
+.form-error { color: var(--red); font-size: 12.5px; margin-top: 5px; }
+
+/* ---------- TABLES ---------- */
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th {
+  text-align: left; padding: 11px 20px; color: var(--faint);
+  font-weight: 500; font-size: 11.5px; white-space: nowrap;
+}
+th.num, td.num { text-align: center; }
+td { padding: 12px 20px; border-top: 1px solid var(--line-soft); }
+td.num { font-family: 'JetBrains Mono', monospace; color: var(--dim); font-variant-numeric: tabular-nums; }
+td.pts { color: var(--text); font-weight: 700; }
+
+/* ---------- NOTICE / EMPTY ---------- */
+.notice {
+  background: var(--bg-alt); border: 1px solid var(--line); border-left: 3px solid var(--orange);
+  border-radius: 8px; padding: 14px 18px; font-size: 13.5px; color: var(--dim);
+}
+.notice b { color: var(--text); }
+.notice-warn { border-left-color: var(--amber); }
+.empty { border: 1px dashed var(--line); border-radius: 12px; padding: 44px 24px; text-align: center; }
+
+/* ---------- UTIL ---------- */
+.dim { color: var(--dim); }
+.faint { color: var(--faint); }
+.spinner {
+  width: 22px; height: 22px; border: 2px solid var(--line);
+  border-top-color: var(--orange); border-radius: 50%; margin: 30px auto;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------- RESPONZIVNO ---------- */
+@media (max-width: 1000px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 760px) {
+  :root { --pad: 18px; }
+  .section { padding: 44px 0; }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  th, td { padding: 11px 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}

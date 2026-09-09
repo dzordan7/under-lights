@@ -1,0 +1,42 @@
+<header class="site-header">
+  <nav class="wrap nav">
+    <a routerLink="/" class="logo" (click)="zatvoriMeni()">
+      <span class="bulb"></span>UNDER<span class="hl">LIGHTS</span>
+    </a>
+
+    <button
+      class="burger"
+      (click)="toggleMeni()"
+      [attr.aria-expanded]="meniOtvoren()"
+      aria-label="Meni"
+    >
+      <span></span><span></span><span></span>
+    </button>
+
+    <div class="nav-collapse" [class.open]="meniOtvoren()">
+      <div class="nav-links">
+        <a
+          routerLink="/"
+          routerLinkActive="on"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="zatvoriMeni()"
+          >Početna</a
+        >
+        <a routerLink="/tournaments" routerLinkActive="on" (click)="zatvoriMeni()">Turniri</a>
+        <a routerLink="/teams" routerLinkActive="on" (click)="zatvoriMeni()">Ekipe</a>
+      </div>
+
+      <div class="nav-actions">
+        @if (authService.isLoggedIn()) {
+          <span class="who dim">{{ authService.currentUser()?.ime }}</span>
+          <button class="btn btn-ghost btn-sm" (click)="logout()">Odjava</button>
+        } @else {
+          <a routerLink="/login" class="btn btn-ghost btn-sm" (click)="zatvoriMeni()">Prijava</a>
+          <a routerLink="/register" class="btn btn-primary btn-sm" (click)="zatvoriMeni()"
+            >Registracija</a
+          >
+        }
+      </div>
+    </div>
+  </nav>
+</header>

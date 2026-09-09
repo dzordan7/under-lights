@@ -1,0 +1,53 @@
+.site-header {
+  position: sticky; top: 0; z-index: 60;
+  background: rgba(11, 14, 20, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+
+.nav {
+  display: flex; align-items: center; gap: 28px;
+  padding-top: 16px; padding-bottom: 16px;
+}
+
+.logo {
+  font-family: 'Oswald', sans-serif; font-size: 21px; font-weight: 700;
+  display: flex; align-items: center; gap: 10px;
+  letter-spacing: 0.04em; white-space: nowrap;
+}
+.logo .hl { color: var(--orange); }
+.logo .bulb {
+  width: 9px; height: 9px; border-radius: 50%; background: var(--orange);
+  box-shadow: 0 0 14px 4px rgba(255, 106, 43, 0.6);
+}
+
+.nav-collapse { display: contents; }
+
+.nav-links { display: flex; gap: 26px; font-size: 14px; font-weight: 500; }
+.nav-links a { color: var(--dim); }
+.nav-links a:hover { color: var(--text); }
+.nav-links a.on { color: var(--orange); }
+
+.nav-actions { margin-left: auto; display: flex; gap: 10px; }
+
+.burger { display: none; margin-left: auto; flex-direction: column; gap: 5px; padding: 8px; }
+.burger span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; }
+
+@media (max-width: 760px) {
+  .nav { flex-wrap: wrap; }
+
+  .burger { display: flex; }
+
+  .nav-collapse {
+    display: none; width: 100%;
+    flex-direction: column; align-items: stretch; gap: 16px;
+    padding-top: 18px; margin-top: 16px; border-top: 1px solid var(--line);
+  }
+  .nav-collapse.open { display: flex; }
+
+  .nav-links { flex-direction: column; gap: 14px; font-size: 15px; }
+  .nav-actions { margin-left: 0; }
+  .nav-actions .btn { flex: 1; }
+
+}
+.who { font-size: 13.5px; align-self: center; }

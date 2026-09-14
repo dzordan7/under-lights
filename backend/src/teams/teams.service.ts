@@ -2,10 +2,12 @@ import {
   Injectable,
   ConflictException,
   NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Team } from './team.entity';
+import { TeamTournament } from '../tournaments/team-tournament.entity';
 import { CreateTeamDto } from './dto/create-team.dto';
 
 @Injectable()
@@ -13,6 +15,8 @@ export class TeamsService {
   constructor(
     @InjectRepository(Team)
     private teamsRepository: Repository<Team>,
+    @InjectRepository(TeamTournament)
+    private teamTournamentRepository: Repository<TeamTournament>,
   ) {}
 
   async create(dto: CreateTeamDto, kapitenId: number): Promise<Team> {
@@ -44,5 +48,20 @@ export class TeamsService {
       throw new NotFoundException('Tim nije pronadjen');
     }
     return team;
+  }
+
+  async findMyRegistrations(
+    teamId: number,
+    kapitenId: number,
+  ): Promise<TeamTournament[]> {
+    const team = await this.findOne(teamId);
+    if (team.kapiten.id !== kapitenId) {
+      throw new ForbiddenException('Mozete videti samo prijave svog tima');
+    }
+
+    return this.teamTournamentRepository.find({
+      where: { team: { id: teamId } },
+      relations: { tournament: true },
+    });
   }
 }

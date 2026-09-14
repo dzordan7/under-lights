@@ -1,0 +1,411 @@
+<div class="section">
+  <div class="wrap">
+    <div class="page-head">
+      <h1>Admin</h1>
+    </div>
+
+    @if (loadingList()) {
+      <div class="spinner"></div>
+    } @else {
+      <div class="toolbar">
+        <select
+          class="field"
+          style="max-width: 340px"
+          [value]="selectedId()"
+          (change)="selectTournament(+$any($event.target).value)"
+        >
+          @for (t of tournaments(); track t.id) {
+            <option [value]="t.id">{{ t.naziv }} - {{ t.status }}</option>
+          }
+        </select>
+        <button class="btn btn-primary btn-sm" (click)="showCreateForm.set(!showCreateForm())">
+          {{ showCreateForm() ? 'Zatvori' : 'Novi turnir' }}
+        </button>
+      </div>
+
+      @if (showCreateForm()) {
+        <div class="card card-pad" style="margin-bottom: 24px; max-width: 480px">
+          <form [formGroup]="createForm" (ngSubmit)="submitCreateTournament()">
+            <div class="form-row">
+              <label for="naziv">Naziv turnira</label>
+              <input id="naziv" class="field" type="text" formControlName="naziv" placeholder="" />
+            </div>
+            <div class="form-row">
+              <label for="grad">Grad</label>
+              <input id="grad" class="field" type="text" formControlName="grad" placeholder="" />
+            </div>
+            <div class="form-row">
+              <label for="lokacija">Lokacija (opciono)</label>
+              <input
+                id="lokacija"
+                class="field"
+                type="text"
+                formControlName="lokacija"
+                placeholder=""
+              />
+            </div>
+            <div class="form-row">
+              <label for="broj_grupa">Broj grupa</label>
+              <input
+                id="broj_grupa"
+                class="field"
+                type="number"
+                formControlName="broj_grupa"
+                min="1"
+              />
+            </div>
+            <div class="form-row">
+              <label for="datum_pocetka">Datum pocetka (opciono)</label>
+              <input id="datum_pocetka" class="field" type="date" formControlName="datum_pocetka" />
+            </div>
+            <button class="btn btn-primary btn-block" type="submit" [disabled]="creating()">
+              {{ creating() ? 'Kreiranje...' : 'Kreiraj turnir' }}
+            </button>
+          </form>
+        </div>
+      }
+
+      @if (tournaments().length === 0) {
+        <div class="empty"><h3>Jos nema kreiranih turnira</h3></div>
+      } @else if (loadingDetail()) {
+        <div class="spinner"></div>
+      } @else if (selected(); as t) {
+        <div class="t-head">
+          <div class="t-head-top">
+            <h1>{{ t.naziv }}</h1>
+            <div class="t-head-actions">
+              <button class="btn btn-ghost btn-sm" (click)="openEditForm()">Izmeni</button>
+              <button
+                class="btn btn-danger btn-sm"
+                [disabled]="deleting()"
+                (click)="deleteTournament()"
+              >
+                {{ deleting() ? 'Brisanje...' : 'Obrisi' }}
+              </button>
+            </div>
+          </div>
+          <div class="meta dim">
+            <span>{{ t.grad }}</span>
+            @if (t.lokacija) {
+              <span>· {{ t.lokacija }}</span>
+            }
+            <span>· {{ t.broj_grupa }} grupe</span>
+            <span class="pill pill-grupna">{{ t.status }}</span>
+          </div>
+
+          @if (showEditForm()) {
+            <form class="edit-form" [formGroup]="editForm" (ngSubmit)="submitEditTournament()">
+              <div class="edit-grid">
+                <div class="form-row">
+                  <label for="e-naziv">Naziv</label>
+                  <input id="e-naziv" class="field" type="text" formControlName="naziv" />
+                </div>
+                <div class="form-row">
+                  <label for="e-grad">Grad</label>
+                  <input id="e-grad" class="field" type="text" formControlName="grad" />
+                </div>
+                <div class="form-row">
+                  <label for="e-lokacija">Lokacija</label>
+                  <input id="e-lokacija" class="field" type="text" formControlName="lokacija" />
+                </div>
+                <div class="form-row">
+                  <label for="e-broj-grupa">Broj grupa</label>
+                  <input
+                    id="e-broj-grupa"
+                    class="field"
+                    type="number"
+                    formControlName="broj_grupa"
+                    min="1"
+                  />
+                </div>
+                <div class="form-row">
+                  <label for="e-datum">Datum pocetka</label>
+                  <input id="e-datum" class="field" type="date" formControlName="datum_pocetka" />
+                </div>
+              </div>
+              <div class="edit-actions">
+                <button class="btn btn-ghost btn-sm" type="button" (click)="cancelEditForm()">
+                  Otkazi
+                </button>
+                <button class="btn btn-primary btn-sm" type="submit" [disabled]="editing()">
+                  {{ editing() ? 'Cuvanje...' : 'Sacuvaj izmene' }}
+                </button>
+              </div>
+            </form>
+          }
+        </div>
+
+        @if (actionMsg()) {
+          <div class="notice notice-warn">{{ actionMsg() }}</div>
+        }
+
+        @if (t.status === TournamentStatus.PRIJAVE_OTVORENE) {
+          <div class="notice">
+            <b>{{ approvedCount() }} od potrebnih {{ minTeamsForDraw() }} ekipa odobreno.</b>
+            Zreb se pokrece kada broj odobrenih ekipa dostigne dvostruki broj grupa.
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              Prijave ekipa
+              <span class="sub">{{ registrations().length }} prijava</span>
+            </div>
+            @if (registrations().length === 0) {
+              <div class="empty"><h3>Jos nema prijava</h3></div>
+            } @else {
+              <table>
+                <tr>
+                  <th>Ekipa</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+                @for (r of registrations(); track r.id) {
+                  <tr>
+                    <td>{{ r.team.naziv }}</td>
+                    <td>
+                      <span
+                        class="pill"
+                        [class.pill-odobreno]="r.status_prijave === 'ODOBRENO'"
+                        [class.pill-odbijeno]="r.status_prijave === 'ODBIJENO'"
+                        [class.pill-cekanje]="r.status_prijave === 'NA_CEKANJU'"
+                      >
+                        {{ r.status_prijave }}
+                      </span>
+                    </td>
+                    <td style="text-align: right">
+                      @if (r.status_prijave === 'NA_CEKANJU') {
+                        <button
+                          class="btn btn-primary btn-sm"
+                          (click)="updateRegistration(r.id, 'ODOBRENO')"
+                        >
+                          Odobri
+                        </button>
+                        <button
+                          class="btn btn-danger btn-sm"
+                          (click)="updateRegistration(r.id, 'ODBIJENO')"
+                        >
+                          Odbij
+                        </button>
+                      }
+                    </td>
+                  </tr>
+                }
+              </table>
+            }
+            <div class="panel-foot">
+              <button
+                class="btn btn-primary btn-sm"
+                [disabled]="!canDraw() || actionBusy()"
+                (click)="runDraw()"
+              >
+                {{ actionBusy() ? 'Pokretanje...' : 'Pokreni zreb' }}
+              </button>
+              @if (!canDraw()) {
+                <span class="dim foot-note"
+                  >Potrebno jos {{ minTeamsForDraw() - approvedCount() }} odobrenih ekipa</span
+                >
+              }
+            </div>
+          </div>
+        }
+
+        @if (t.status === TournamentStatus.GRUPNA_FAZA) {
+          <div class="notice notice-warn">
+            <b>Ostalo je {{ unplayedGroupMatches().length }} neodigranih meceva.</b>
+            Eliminaciona faza se otkljucava kad svi mecevi grupa dobiju rezultat.
+          </div>
+
+          <div class="panel" style="margin-bottom: 20px">
+            <div class="panel-head">
+              Mecevi grupne faze
+              <span class="sub"
+                >{{ groupMatches().length - unplayedGroupMatches().length }} od
+                {{ groupMatches().length }} odigrano</span
+              >
+            </div>
+            @for (m of groupMatches(); track m.id) {
+              <div class="match-row">
+                <span>{{ m.teamA.naziv }}</span>
+                @if (m.status === 'ODIGRAN') {
+                  <span class="score mono">{{ m.rezultat_a }}:{{ m.rezultat_b }}</span>
+                } @else {
+                  <span class="dim">vs</span>
+                }
+                <span>{{ m.teamB.naziv }}</span>
+                <span class="match-act">
+                  <button
+                    class="btn btn-sm"
+                    [class.btn-primary]="m.status !== 'ODIGRAN'"
+                    [class.btn-ghost]="m.status === 'ODIGRAN'"
+                    (click)="openResultModal(m)"
+                  >
+                    {{ m.status === 'ODIGRAN' ? 'Izmeni' : 'Unesi rezultat' }}
+                  </button>
+                </span>
+              </div>
+            }
+            <div class="panel-foot">
+              <button
+                class="btn btn-primary btn-sm"
+                [disabled]="!canStartKnockout() || actionBusy()"
+                (click)="startKnockout()"
+              >
+                {{ actionBusy() ? 'Pokretanje...' : 'Pokreni eliminacionu fazu' }}
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-2">
+            @for (gs of groupStandings(); track gs.group.id) {
+              <div class="panel">
+                <div class="panel-head">{{ gs.group.naziv }}</div>
+                <table>
+                  <tr>
+                    <th>#</th>
+                    <th>Ekipa</th>
+                    <th class="num">Ut</th>
+                    <th class="num">Bod</th>
+                  </tr>
+                  @for (row of gs.rows; track row.id; let i = $index) {
+                    <tr>
+                      <td class="num">{{ i + 1 }}</td>
+                      <td>{{ row.team.naziv }}</td>
+                      <td class="num">{{ row.odigrano }}</td>
+                      <td class="num pts">{{ row.bodovi }}</td>
+                    </tr>
+                  }
+                </table>
+              </div>
+            }
+          </div>
+        }
+
+        @if (t.status === TournamentStatus.ELIMINACIONA_FAZA) {
+          <div class="panel">
+            <div class="panel-head">
+              {{ faseLabel(currentKnockoutRound()[0]?.faza) }}
+              <span class="sub"
+                >{{ currentKnockoutRound().length - unplayedKnockoutMatches().length }} od
+                {{ currentKnockoutRound().length }} odigrano</span
+              >
+            </div>
+            @for (m of currentKnockoutRound(); track m.id) {
+              <div class="match-row">
+                <span>{{ m.teamA.naziv }}</span>
+                @if (m.status === 'ODIGRAN') {
+                  <span class="score mono">{{ m.rezultat_a }}:{{ m.rezultat_b }}</span>
+                } @else {
+                  <span class="dim">vs</span>
+                }
+                <span>{{ m.teamB.naziv }}</span>
+                <span class="match-act">
+                  <button
+                    class="btn btn-sm"
+                    [class.btn-primary]="m.status !== 'ODIGRAN'"
+                    [class.btn-ghost]="m.status === 'ODIGRAN'"
+                    (click)="openResultModal(m)"
+                  >
+                    {{ m.status === 'ODIGRAN' ? 'Izmeni' : 'Unesi rezultat' }}
+                  </button>
+                </span>
+              </div>
+            }
+            <div class="panel-foot">
+              <button
+                class="btn btn-primary btn-sm"
+                [disabled]="!canAdvanceKnockout() || actionBusy()"
+                (click)="advanceRound()"
+              >
+                {{ actionBusy() ? 'Prelazak...' : 'Sledece kolo' }}
+              </button>
+            </div>
+          </div>
+        }
+
+        @if (t.status === TournamentStatus.ZAVRSEN) {
+          @if (loadingAwards()) {
+            <div class="spinner"></div>
+          } @else {
+            <div class="grid grid-3">
+              <div class="card card-pad award-panel">
+                <h3>Najbolji strelac</h3>
+                @if (givenAward(AwardType.NAJBOLJI_STRELAC); as given) {
+                  <p class="award-name">{{ given.player.ime }} {{ given.player.prezime }}</p>
+                } @else if (suggestionFor(AwardType.NAJBOLJI_STRELAC)?.predlog; as sug) {
+                  <p class="award-name">{{ sug.ime }} {{ sug.prezime }}</p>
+                  <button
+                    class="btn btn-primary btn-sm"
+                    [disabled]="awardingType() === AwardType.NAJBOLJI_STRELAC"
+                    (click)="giveAward(AwardType.NAJBOLJI_STRELAC, sug.player_id)"
+                  >
+                    {{
+                      awardingType() === AwardType.NAJBOLJI_STRELAC
+                        ? 'Dodeljivanje...'
+                        : 'Dodeli nagradu'
+                    }}
+                  </button>
+                }
+              </div>
+
+              <div class="card card-pad award-panel">
+                <h3>Najbolji golman</h3>
+                @if (givenAward(AwardType.NAJBOLJI_GOLMAN); as given) {
+                  <p class="award-name">{{ given.player.ime }} {{ given.player.prezime }}</p>
+                } @else if (suggestionFor(AwardType.NAJBOLJI_GOLMAN)?.predlog; as sug) {
+                  <p class="award-name">{{ sug.ime }} {{ sug.prezime }}</p>
+                  <button
+                    class="btn btn-primary btn-sm"
+                    [disabled]="awardingType() === AwardType.NAJBOLJI_GOLMAN"
+                    (click)="giveAward(AwardType.NAJBOLJI_GOLMAN, sug.player_id)"
+                  >
+                    {{
+                      awardingType() === AwardType.NAJBOLJI_GOLMAN
+                        ? 'Dodeljivanje...'
+                        : 'Dodeli nagradu'
+                    }}
+                  </button>
+                }
+              </div>
+
+              <div class="card card-pad award-panel">
+                <h3>Najbolji igrac</h3>
+                @if (givenAward(AwardType.NAJBOLJI_IGRAC); as given) {
+                  <p class="award-name">{{ given.player.ime }} {{ given.player.prezime }}</p>
+                } @else {
+                  <select
+                    class="field"
+                    [value]="selectedBestPlayerId()"
+                    (change)="selectedBestPlayerId.set(+$any($event.target).value)"
+                  >
+                    <option value="">Izaberi igraca</option>
+                    @for (p of finalPlayers(); track p.id) {
+                      <option [value]="p.id">{{ p.ime }} {{ p.prezime }}</option>
+                    }
+                  </select>
+                  <button
+                    class="btn btn-primary btn-sm"
+                    style="margin-top: 10px"
+                    [disabled]="
+                      !selectedBestPlayerId() || awardingType() === AwardType.NAJBOLJI_IGRAC
+                    "
+                    (click)="giveBestPlayer()"
+                  >
+                    {{
+                      awardingType() === AwardType.NAJBOLJI_IGRAC
+                        ? 'Dodeljivanje...'
+                        : 'Dodeli nagradu'
+                    }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        }
+      }
+    }
+  </div>
+</div>
+
+@if (selectedMatch(); as m) {
+  <app-match-result-modal [match]="m" (closed)="closeResultModal()" (saved)="onResultSaved()" />
+}

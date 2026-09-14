@@ -9,14 +9,19 @@ import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { tournamentFeatureKey, tournamentReducer } from './store/tournaments/tournament.reducer';
 import { TournamentEffects } from './store/tournaments/tournament.effects';
+import { teamFeatureKey, teamReducer } from './store/teams/team.reducer';
+import { TeamEffects } from './store/teams/team.effects';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideHttpClient(withInterceptors([authInterceptor])),
-    provideStore({ [tournamentFeatureKey]: tournamentReducer }),
-    provideEffects([TournamentEffects]),
+    provideStore({
+      [tournamentFeatureKey]: tournamentReducer,
+      [teamFeatureKey]: teamReducer,
+    }),
+    provideEffects([TournamentEffects, TeamEffects]),
     provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
   ],
 };

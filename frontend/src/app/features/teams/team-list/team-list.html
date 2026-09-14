@@ -1,1 +1,28 @@
-<p>team-list works!</p>
+<div class="section">
+  <div class="wrap">
+    <div class="page-head">
+      <h1>Ekipe</h1>
+      <p class="dim">Sve registrovane ekipe i njihovi kapiteni.</p>
+    </div>
+
+    @if (loading()) {
+      <div class="spinner"></div>
+    } @else if (teams().length === 0) {
+      <div class="empty">
+        <h3>Jos nema registrovanih ekipa</h3>
+      </div>
+    } @else {
+      <div class="grid grid-3">
+        @for (t of teams(); track t.id) {
+          <a class="card card-pad t-card" [routerLink]="['/teams', t.id]">
+            <div class="crest">{{ t.naziv.slice(0, 2).toUpperCase() }}</div>
+            <h3>{{ t.naziv }}</h3>
+            @if (t.kapiten) {
+              <div class="dim meta">Kapiten: {{ t.kapiten.ime }}</div>
+            }
+          </a>
+        }
+      </div>
+    }
+  </div>
+</div>

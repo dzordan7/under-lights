@@ -8,6 +8,7 @@ import {
   Query,
   UseGuards,
   ParseIntPipe,
+  Delete,
 } from '@nestjs/common';
 import { TournamentsService } from './tournaments.service';
 import { CreateTournamentDto } from './dto/create-tournament.dto';
@@ -126,5 +127,22 @@ export class TournamentsController {
   @Get(':id/top-goalkeepers')
   getTopGoalkeepers(@Param('id', ParseIntPipe) id: number) {
     return this.playersService.getTopGoalkeepers(id);
+  }
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: Partial<CreateTournamentDto>,
+  ) {
+    return this.tournamentsService.update(id, dto);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.tournamentsService.remove(id);
   }
 }

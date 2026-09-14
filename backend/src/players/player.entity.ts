@@ -44,4 +44,7 @@ export class Player {
 
   @CreateDateColumn()
   created_at!: Date;
+
+  @Column({ nullable: true })
+  slika_url?: string;
 }

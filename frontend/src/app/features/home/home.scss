@@ -1,0 +1,126 @@
+.hero {
+  position: relative;
+  padding: 92px 28px 64px;
+  text-align: center;
+  overflow: hidden;
+}
+.hero::before {
+  content: "";
+  position: absolute; top: -230px; left: 50%; transform: translateX(-50%);
+  width: 960px; height: 720px; pointer-events: none;
+  background: radial-gradient(circle, rgba(255,106,43,0.2) 0%, rgba(255,106,43,0.05) 42%, transparent 70%);
+}
+.hero::after {
+  content: "";
+  position: absolute; top: -270px; left: 28%; transform: translateX(-50%);
+  width: 520px; height: 620px; pointer-events: none;
+  background: radial-gradient(circle, rgba(62,123,250,0.14) 0%, transparent 66%);
+}
+
+.tag {
+  position: relative; display: inline-flex; align-items: center; gap: 8px;
+  font-size: 12.5px; font-weight: 600; color: var(--orange);
+  background: var(--orange-soft); border: 1px solid rgba(255,106,43,0.32);
+  padding: 6px 14px; border-radius: 100px; margin-bottom: 24px;
+}
+
+.hero h1 {
+  position: relative; font-size: 56px; font-weight: 700; line-height: 1.06;
+  max-width: 720px; margin: 0 auto 18px;
+}
+.hero p { position: relative; font-size: 17px; max-width: 520px; margin: 0 auto 32px; }
+.hero-actions {
+  position: relative; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+}
+.hero-actions .btn { padding: 13px 26px; font-size: 15px; }
+
+.sec-head {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  gap: 20px; flex-wrap: wrap; margin-bottom: 28px;
+}
+.sec-head h2 { font-size: 28px; margin-bottom: 4px; }
+.sec-head p { font-size: 14px; }
+
+.t-card { text-align: left; display: block; }
+.t-card:hover { border-color: var(--orange-dim); }
+.t-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+.t-card h3 { font-family: 'Inter', sans-serif; font-size: 17px; font-weight: 600; margin-bottom: 5px; }
+.meta { font-size: 13px; }
+.foot { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 13px; }
+
+.band { background: var(--bg-alt); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+
+.panel-head .sub { font-size: 12px; }
+
+/* ---------- Poslednji rezultati ---------- */
+.result-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 14px 20px; border-top: 1px solid var(--line-soft); font-size: 13.5px;
+}
+.result-row:first-child { border-top: none; }
+
+.rr-team { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
+.rr-team.rr-right { justify-content: flex-end; text-align: right; }
+.rr-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.crest {
+  width: 28px; height: 28px; border-radius: 8px; background: var(--card-2);
+  display: grid; place-items: center; font-family: 'Oswald', sans-serif;
+  font-size: 11px; font-weight: 600; color: var(--dim); flex-shrink: 0;
+}
+
+.score {
+  flex-shrink: 0;
+  font-weight: 700; font-size: 15px;
+  background: var(--card-2); border: 1px solid var(--line);
+  padding: 5px 12px; border-radius: 7px;
+}
+
+/* ---------- Igraci koje treba pratiti ---------- */
+.p-card { text-align: left; display: block; overflow: hidden; }
+.p-card.lead { border-color: var(--orange); }
+
+.p-shot {
+  height: 130px;
+  background: linear-gradient(160deg, var(--card-2), var(--card));
+  position: relative;
+}
+.p-badge {
+  position: absolute; top: 11px; left: 11px; background: var(--orange); color: #180900;
+  font-size: 10.5px; font-weight: 700; padding: 4px 9px; border-radius: 100px;
+}
+
+.p-meta { padding: 15px 17px; }
+.p-name { font-weight: 600; font-size: 15px; }
+.p-team { font-size: 12px; margin-bottom: 11px; }
+.p-nums { display: flex; gap: 15px; font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+.p-nums b { color: var(--orange); }
+
+.cta {
+  background: linear-gradient(115deg, #1B1108 0%, var(--card) 55%);
+  border: 1px solid var(--line); border-radius: 16px;
+  padding: 44px 46px;
+  display: flex; justify-content: space-between; align-items: center; gap: 30px; flex-wrap: wrap;
+}
+.cta h2 { font-size: 26px; margin-bottom: 8px; }
+.cta p { font-size: 15px; max-width: 420px; }
+.cta-actions { display: flex; gap: 11px; flex-wrap: wrap; }
+
+@media (max-width: 760px) {
+  .hero h1 { font-size: 36px; }
+  .cta { padding: 30px 24px; flex-direction: column; align-items: flex-start; }
+  .result-row { flex-wrap: wrap; }
+}
+
+.ball {
+  color: var(--orange);
+  display: inline-flex;
+}
+
+.p-shot img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+.p-shot { height: 170px; overflow: hidden; }

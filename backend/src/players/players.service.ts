@@ -122,6 +122,7 @@ export class PlayersService {
       prezime: player.prezime,
       pozicija: player.pozicija,
       broj_dresa: player.broj_dresa,
+      slika_url: player.slika_url,
       team: {
         id: player.team.id,
         naziv: player.team.naziv,
@@ -185,6 +186,7 @@ export class PlayersService {
           ime: p.ime,
           prezime: p.prezime,
           team_naziv: p.team?.naziv ?? '',
+          slika_url: p.slika_url,
           golovi: 0,
           asistencije: 0,
           odigrano: 0,
@@ -226,6 +228,7 @@ export class PlayersService {
           ime: p.ime,
           prezime: p.prezime,
           team_naziv: p.team?.naziv ?? '',
+          slika_url: p.slika_url,
           odbrane: 0,
           primljeni_golovi: 0,
           clean_sheets: 0,

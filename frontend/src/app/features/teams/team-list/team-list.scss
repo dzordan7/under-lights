@@ -1,0 +1,15 @@
+.page-head { margin-bottom: 30px; }
+.page-head h1 { font-size: 34px; margin-bottom: 6px; }
+.page-head p { font-size: 15px; }
+
+.t-card { text-align: left; display: block; }
+.t-card:hover { border-color: var(--orange-dim); }
+
+.crest {
+  width: 42px; height: 42px; border-radius: 11px; background: var(--card-2);
+  display: grid; place-items: center; font-family: 'Oswald', sans-serif;
+  font-size: 14px; font-weight: 700; color: var(--dim); margin-bottom: 14px;
+}
+
+.t-card h3 { font-family: 'Inter', sans-serif; font-size: 17px; font-weight: 600; margin-bottom: 4px; }
+.meta { font-size: 13px; }

@@ -17,6 +17,7 @@ export interface PlayerProfile {
   prezime: string;
   pozicija: string;
   broj_dresa: number;
+  slika_url?: string;
   team: {
     id: number;
     naziv: string;
@@ -34,6 +35,7 @@ export interface TopScorer {
   ime: string;
   prezime: string;
   team_naziv: string;
+  slika_url?: string;
   golovi: number;
   asistencije: number;
   odigrano: number;
@@ -44,6 +46,7 @@ export interface TopGoalkeeper {
   ime: string;
   prezime: string;
   team_naziv: string;
+  slika_url?: string;
   odbrane: number;
   primljeni_golovi: number;
   clean_sheets: number;

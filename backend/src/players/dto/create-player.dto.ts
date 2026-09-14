@@ -28,4 +28,8 @@ export class CreatePlayerDto {
   @IsOptional()
   @IsDateString()
   datum_rodjenja?: string;
+
+  @IsOptional()
+  @IsString()
+  slika_url?: string;
 }

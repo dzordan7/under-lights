@@ -26,3 +26,26 @@ export interface Group {
   id: number;
   naziv: string;
 }
+
+export interface TopScorer {
+  player_id: number;
+  ime: string;
+  prezime: string;
+  team_naziv: string;
+  slika_url?: string;
+  golovi: number;
+  asistencije: number;
+  odigrano: number;
+}
+
+export interface TopGoalkeeper {
+  player_id: number;
+  ime: string;
+  prezime: string;
+  team_naziv: string;
+  slika_url?: string;
+  odbrane: number;
+  primljeni_golovi: number;
+  clean_sheets: number;
+  odigrano: number;
+}

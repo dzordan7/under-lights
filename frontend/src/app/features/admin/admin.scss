@@ -1,0 +1,38 @@
+.page-head { margin-bottom: 26px; }
+.page-head h1 { font-size: 34px; margin-bottom: 6px; }
+.page-head p { font-size: 15px; }
+
+.toolbar { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; }
+
+.t-head { margin-bottom: 20px; }
+.t-head h1 { font-size: 30px; margin-bottom: 8px; }
+.meta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 14px; }
+
+.panel-foot {
+  padding: 16px 20px; border-top: 1px solid var(--line);
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+}
+.foot-note { font-size: 13px; }
+
+.match-row {
+  display: grid; grid-template-columns: 1fr auto 1fr auto; align-items: center; gap: 14px;
+  padding: 13px 20px; border-top: 1px solid var(--line-soft); font-size: 14px;
+}
+.match-row:first-child { border-top: none; }
+.score {
+  font-weight: 700; font-size: 15px; background: var(--card-2);
+  border: 1px solid var(--line); padding: 4px 10px; border-radius: 6px; justify-self: center;
+}
+.match-act { justify-self: end; }
+
+.award-panel { text-align: center; }
+.award-panel h3 { font-family: 'Inter', sans-serif; font-size: 16px; margin-bottom: 14px; }
+.award-name { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+
+.t-head-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; margin-bottom: 10px; }
+.t-head-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+.edit-form { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--line); }
+.edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+@media (max-width: 560px) { .edit-grid { grid-template-columns: 1fr; } }
+.edit-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; }

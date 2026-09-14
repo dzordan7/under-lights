@@ -35,4 +35,14 @@ export class TeamsController {
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.teamsService.findOne(id);
   }
+
+  @Get(':id/registrations')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.KAPITEN)
+  findMyRegistrations(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() user: { userId: number },
+  ) {
+    return this.teamsService.findMyRegistrations(id, user.userId);
+  }
 }

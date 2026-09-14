@@ -1,1 +1,131 @@
-<p>player-detail works!</p>
+<div class="section">
+  <div class="wrap">
+    @if (loading()) {
+      <div class="spinner"></div>
+    } @else if (error()) {
+      <div class="empty">
+        <h3>{{ error() }}</h3>
+      </div>
+    } @else if (profile(); as p) {
+      <div class="crumb">
+        <a [routerLink]="['/teams', p.team.id]">{{ p.team.naziv }}</a> / {{ p.ime }} {{ p.prezime }}
+      </div>
+
+      <div class="profile-top">
+        <div class="avatar">
+          @if (p.slika_url) {
+            <img [src]="p.slika_url" [alt]="p.ime + ' ' + p.prezime" />
+          } @else {
+            <span>Foto</span>
+          }
+        </div>
+        <div class="profile-meta">
+          <h1>{{ p.ime }} {{ p.prezime }}</h1>
+          <div class="dim sub">
+            {{ positionLabel(p.pozicija) }} - broj {{ p.broj_dresa }} -
+            <a [routerLink]="['/teams', p.team.id]">{{ p.team.naziv }}</a>
+          </div>
+
+          @if (awards().length > 0) {
+            <div class="medals">
+              @for (a of awards(); track a.id) {
+                <span class="medal">{{ awardLabel(a.tip) }} - {{ a.tournament.naziv }}</span>
+              }
+            </div>
+          }
+
+          @if (isGoalkeeper()) {
+            <div class="stat-row">
+              <div class="stat">
+                <div class="v">{{ p.ukupno.odigrano }}</div>
+                <div class="k dim">odigranih meceva</div>
+              </div>
+              <div class="stat">
+                <div class="v hl">{{ goalkeeperTotals().odbrane }}</div>
+                <div class="k dim">odbrana</div>
+              </div>
+              <div class="stat">
+                <div class="v">{{ goalkeeperTotals().primljeni_golovi }}</div>
+                <div class="k dim">primljenih golova</div>
+              </div>
+              <div class="stat">
+                <div class="v">{{ goalkeeperTotals().clean_sheets }}</div>
+                <div class="k dim">meceva bez primljenog gola</div>
+              </div>
+            </div>
+          } @else {
+            <div class="stat-row">
+              <div class="stat">
+                <div class="v">{{ p.ukupno.odigrano }}</div>
+                <div class="k dim">odigranih meceva</div>
+              </div>
+              <div class="stat">
+                <div class="v hl">{{ p.ukupno.golovi }}</div>
+                <div class="k dim">golova</div>
+              </div>
+              <div class="stat">
+                <div class="v">{{ p.ukupno.asistencije }}</div>
+                <div class="k dim">asistencija</div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">Statistika po turnirima</div>
+        @if (p.po_turnirima.length === 0) {
+          <div class="empty"><h3>Jos nema odigranih meceva</h3></div>
+        } @else {
+          <div class="table-scroll">
+            @if (isGoalkeeper()) {
+              <table>
+                <tr>
+                  <th>Turnir</th>
+                  <th class="num">Ut</th>
+                  <th class="num">Odbrane</th>
+                  <th class="num">Primljeno</th>
+                  <th class="num">CM</th>
+                  <th class="num">ZK</th>
+                  <th class="num">CK</th>
+                </tr>
+                @for (row of p.po_turnirima; track row.tournament_id) {
+                  <tr>
+                    <td>{{ row.tournament_naziv }}</td>
+                    <td class="num">{{ row.odigrano }}</td>
+                    <td class="num pts">{{ row.odbrane }}</td>
+                    <td class="num">{{ row.primljeni_golovi }}</td>
+                    <td class="num">{{ row.clean_sheets }}</td>
+                    <td class="num">{{ row.zuti_kartoni }}</td>
+                    <td class="num">{{ row.crveni_kartoni }}</td>
+                  </tr>
+                }
+              </table>
+            } @else {
+              <table>
+                <tr>
+                  <th>Turnir</th>
+                  <th class="num">Ut</th>
+                  <th class="num">Golovi</th>
+                  <th class="num">Asist.</th>
+                  <th class="num">ZK</th>
+                  <th class="num">CK</th>
+                </tr>
+                @for (row of p.po_turnirima; track row.tournament_id) {
+                  <tr>
+                    <td>{{ row.tournament_naziv }}</td>
+                    <td class="num">{{ row.odigrano }}</td>
+                    <td class="num pts">{{ row.golovi }}</td>
+                    <td class="num">{{ row.asistencije }}</td>
+                    <td class="num">{{ row.zuti_kartoni }}</td>
+                    <td class="num">{{ row.crveni_kartoni }}</td>
+                  </tr>
+                }
+              </table>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

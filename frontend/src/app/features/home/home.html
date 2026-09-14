@@ -1,1 +1,174 @@
-<p>home works!</p>
+<div class="hero">
+  <span class="tag">Dobrodosli</span>
+  <h1>Teren se pali tek kad padne mrak.</h1>
+  <p class="dim">Prijavi ekipu, prati grupe i bori se za titulu u nocnim ligama malog fudbala.</p>
+
+  <div class="hero-actions">
+    <a class="btn btn-primary" routerLink="/tournaments">Pogledaj turnire</a>
+
+    @if (!authService.isLoggedIn()) {
+      <a class="btn btn-ghost" routerLink="/register">Napravi nalog</a>
+    } @else if (authService.hasRole(Role.KAPITEN)) {
+      <a class="btn btn-ghost" routerLink="/my-team">Moja ekipa</a>
+    }
+  </div>
+</div>
+
+<div class="section">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <h2>Turniri u toku</h2>
+      </div>
+      <a class="btn btn-ghost btn-sm" routerLink="/tournaments">Svi turniri</a>
+    </div>
+
+    @if (loading()) {
+      <div class="spinner"></div>
+    } @else if (featuredTournaments().length === 0) {
+      <div class="empty">
+        <h3>Jos nema kreiranih turnira</h3>
+      </div>
+    } @else {
+      <div class="grid grid-3">
+        @for (t of featuredTournaments(); track t.id) {
+          <a class="card card-pad t-card" [routerLink]="['/tournaments', t.id]">
+            <div class="t-card-top">
+              <svg lucideSportShoe [size]="20" class="ball"></svg>
+              <span class="pill" [class]="pillClass(t.status)">{{ statusLabel(t.status) }}</span>
+            </div>
+            <h3>{{ t.naziv }}</h3>
+            <div class="meta dim">
+              {{ t.grad }}
+              @if (t.lokacija) {
+                · {{ t.lokacija }}
+              }
+            </div>
+            <div class="foot">
+              <span class="dim">{{ t.broj_grupa }} grupe</span>
+            </div>
+          </a>
+        }
+      </div>
+    }
+  </div>
+</div>
+
+@if (recentResults().length > 0 || featuredPlayers().length > 0) {
+  <div class="section band">
+    <div class="wrap">
+      <div class="grid grid-2">
+        @if (recentResults().length > 0) {
+          <div class="panel">
+            <div class="panel-head">
+              Poslednji rezultati
+              <span class="sub dim">{{ featuredTournamentName() }}</span>
+            </div>
+            @for (m of recentResults(); track m.id) {
+              <div class="result-row">
+                <div class="rr-team">
+                  <span class="crest">{{ initials(m.teamA.naziv) }}</span>
+                  <span class="rr-name">{{ m.teamA.naziv }}</span>
+                </div>
+                <span class="score mono">{{ m.rezultat_a }}:{{ m.rezultat_b }}</span>
+                <div class="rr-team rr-right">
+                  <span class="rr-name">{{ m.teamB.naziv }}</span>
+                  <span class="crest">{{ initials(m.teamB.naziv) }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        @if (featuredPlayers().length > 0) {
+          <div class="panel">
+            <div class="panel-head">
+              Vodeci strelci
+              <span class="sub dim">{{ featuredTournamentName() }}</span>
+            </div>
+            <table>
+              <tr>
+                <th>#</th>
+                <th>Igrac</th>
+                <th>Ekipa</th>
+                <th class="num">Gol</th>
+                <th class="num">As</th>
+              </tr>
+              @for (p of featuredPlayers(); track p.player_id; let i = $index) {
+                <tr>
+                  <td class="num">{{ i + 1 }}</td>
+                  <td>
+                    <a [routerLink]="['/players', p.player_id]">{{ p.ime }} {{ p.prezime }}</a>
+                  </td>
+                  <td class="dim">{{ p.team_naziv }}</td>
+                  <td class="num pts">{{ p.golovi }}</td>
+                  <td class="num">{{ p.asistencije }}</td>
+                </tr>
+              }
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}
+
+@if (featuredPlayers().length > 0) {
+  <div class="section">
+    <div class="wrap">
+      <div class="sec-head">
+        <div>
+          <h2>Igraci koje treba pratiti</h2>
+          <p class="dim">Vodeci strelci turnira {{ featuredTournamentName() }}</p>
+        </div>
+      </div>
+      <div class="grid grid-4">
+        @for (p of featuredPlayers(); track p.player_id; let i = $index) {
+          <a class="card p-card" [class.lead]="i === 0" [routerLink]="['/players', p.player_id]">
+            <div class="p-shot">
+              @if (i === 0) {
+                <span class="p-badge">Najbolji strelac</span>
+              }
+              @if (p.slika_url) {
+                <img [src]="p.slika_url" alt="" />
+              }
+            </div>
+            <div class="p-meta">
+              <div class="p-name">{{ p.ime }} {{ p.prezime }}</div>
+              <div class="dim p-team">{{ p.team_naziv }}</div>
+              <div class="p-nums">
+                <span
+                  ><b>{{ p.golovi }}</b> gol.</span
+                >
+                <span
+                  ><b>{{ p.asistencije }}</b> asis.</span
+                >
+              </div>
+            </div>
+          </a>
+        }
+      </div>
+    </div>
+  </div>
+}
+
+<div class="section">
+  <div class="wrap">
+    <div class="cta">
+      <div>
+        <h2>Vodis ekipu?</h2>
+        <p class="dim">
+          Napravi nalog kapitena, dodaj igrace u sastav i prijavi tim na sledeci turnir.
+        </p>
+      </div>
+      <div class="cta-actions">
+        @if (!authService.isLoggedIn()) {
+          <a class="btn btn-secondary" routerLink="/register">Otvori nalog</a>
+        } @else if (authService.hasRole(Role.KAPITEN)) {
+          <a class="btn btn-secondary" routerLink="/my-team">Idi na moju ekipu</a>
+        }
+        <a class="btn btn-ghost" routerLink="/tournaments">Vidi turnire</a>
+      </div>
+    </div>
+  </div>
+</div>

@@ -26,6 +26,7 @@ export interface Player {
   pozicija: Position;
   datum_rodjenja?: string;
   team?: Team;
+  slika_url?: string;
 }
 
 export interface TeamTournament {

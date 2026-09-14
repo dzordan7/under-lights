@@ -1,0 +1,21 @@
+.profile-top { display: flex; gap: 22px; align-items: center; margin-bottom: 26px; flex-wrap: wrap; }
+.avatar {
+  width: 88px; height: 88px; border-radius: 14px; flex-shrink: 0;
+  background: var(--card-2); display: grid; place-items: center;
+  font-family: 'Oswald', sans-serif; font-size: 20px; font-weight: 700; color: var(--dim);
+  border: 1px solid var(--line);
+}
+.profile-meta h1 { font-size: 30px; margin-bottom: 6px; }
+.sub { font-size: 14px; }
+
+.roster-row {
+  display: grid; grid-template-columns: 40px 1fr auto; gap: 14px; align-items: center;
+  padding: 13px 20px; border-top: 1px solid var(--line-soft); color: var(--text);
+}
+.roster-row:first-child { border-top: none; }
+.roster-row:hover { background: var(--card-2); }
+.shirt {
+  width: 30px; height: 30px; border-radius: 7px; background: var(--card-2);
+  display: grid; place-items: center; font-size: 12px; font-weight: 700; color: var(--dim);
+}
+.pname { font-size: 14.5px; }

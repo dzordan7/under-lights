@@ -1,0 +1,126 @@
+<div class="overlay" (click)="close()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-head">
+      <h3>Unos rezultata</h3>
+      <button class="x" (click)="close()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      @if (loading()) {
+        <div class="spinner"></div>
+      } @else {
+        <form [formGroup]="scoreForm">
+          <div class="score-entry">
+            <span class="tm r">{{ match().teamA.naziv }}</span>
+            <input class="score-in mono" type="number" min="0" formControlName="rezultat_a" />
+            <span class="colon">:</span>
+            <input class="score-in mono" type="number" min="0" formControlName="rezultat_b" />
+            <span class="tm">{{ match().teamB.naziv }}</span>
+          </div>
+        </form>
+
+        <div class="cols">
+          <div>
+            <div class="col-head">
+              <span class="nm">{{ match().teamA.naziv }}</span>
+            </div>
+            @for (row of playersA(); track row.player.id; let i = $index) {
+              <div class="stat-line" [formGroup]="statsA.controls[i]">
+                <div class="who">
+                  <span class="shirt mono">{{ row.player.broj_dresa }}</span>
+                  <span>{{ row.player.ime }} {{ row.player.prezime }}</span>
+                </div>
+
+                @if (row.isGk) {
+                  <div class="cell">
+                    <label>Prim</label
+                    ><input class="mini" type="number" min="0" formControlName="primljeni_golovi" />
+                  </div>
+                  <div class="cell">
+                    <label>Odbr</label
+                    ><input class="mini" type="number" min="0" formControlName="odbrane" />
+                  </div>
+                } @else {
+                  <div class="cell">
+                    <label>Gol</label
+                    ><input class="mini" type="number" min="0" formControlName="golovi" />
+                  </div>
+                  <div class="cell">
+                    <label>Asis</label
+                    ><input class="mini" type="number" min="0" formControlName="asistencije" />
+                  </div>
+                }
+                <div class="cell">
+                  <label>ZK</label
+                  ><input class="mini" type="number" min="0" formControlName="zuti_kartoni" />
+                </div>
+                <div class="cell">
+                  <label>CK</label
+                  ><input class="mini" type="number" min="0" formControlName="crveni_kartoni" />
+                </div>
+              </div>
+            }
+          </div>
+
+          <div>
+            <div class="col-head">
+              <span class="nm">{{ match().teamB.naziv }}</span>
+            </div>
+            @for (row of playersB(); track row.player.id; let i = $index) {
+              <div class="stat-line" [formGroup]="statsB.controls[i]">
+                <div class="who">
+                  <span class="shirt mono">{{ row.player.broj_dresa }}</span>
+                  <span>{{ row.player.ime }} {{ row.player.prezime }}</span>
+                </div>
+
+                @if (row.isGk) {
+                  <div class="cell">
+                    <label>Prim</label
+                    ><input class="mini" type="number" min="0" formControlName="primljeni_golovi" />
+                  </div>
+                  <div class="cell">
+                    <label>Odbr</label
+                    ><input class="mini" type="number" min="0" formControlName="odbrane" />
+                  </div>
+                } @else {
+                  <div class="cell">
+                    <label>Gol</label
+                    ><input class="mini" type="number" min="0" formControlName="golovi" />
+                  </div>
+                  <div class="cell">
+                    <label>Asis</label
+                    ><input class="mini" type="number" min="0" formControlName="asistencije" />
+                  </div>
+                }
+                <div class="cell">
+                  <label>ZK</label
+                  ><input class="mini" type="number" min="0" formControlName="zuti_kartoni" />
+                </div>
+                <div class="cell">
+                  <label>CK</label
+                  ><input class="mini" type="number" min="0" formControlName="crveni_kartoni" />
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <div class="modal-foot">
+      <span class="msg" [class.bad]="errorMsg()">
+        {{ errorMsg() ?? 'Zbir golova igraca mora da odgovara rezultatu.' }}
+      </span>
+      <div class="foot-actions">
+        <button class="btn btn-ghost btn-sm" (click)="close()">Otkazi</button>
+        <button
+          class="btn btn-primary btn-sm"
+          [disabled]="saving() || loading()"
+          (click)="submit()"
+        >
+          {{ saving() ? 'Cuvanje...' : 'Sacuvaj rezultat' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

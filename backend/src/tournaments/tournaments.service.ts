@@ -438,4 +438,25 @@ export class TournamentsService {
 
     return poslednja;
   }
+
+  async update(
+    id: number,
+    dto: Partial<CreateTournamentDto>,
+  ): Promise<Tournament> {
+    const tournament = await this.findOne(id);
+
+    if (dto.naziv !== undefined) tournament.naziv = dto.naziv;
+    if (dto.grad !== undefined) tournament.grad = dto.grad;
+    if (dto.lokacija !== undefined) tournament.lokacija = dto.lokacija;
+    if (dto.broj_grupa !== undefined) tournament.broj_grupa = dto.broj_grupa;
+    if (dto.datum_pocetka !== undefined)
+      tournament.datum_pocetka = dto.datum_pocetka;
+
+    return this.tournamentsRepository.save(tournament);
+  }
+
+  async remove(id: number): Promise<void> {
+    const tournament = await this.findOne(id);
+    await this.tournamentsRepository.remove(tournament);
+  }
 }

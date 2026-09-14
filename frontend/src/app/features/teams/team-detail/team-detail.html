@@ -1,1 +1,44 @@
-<p>team-detail works!</p>
+<div class="section">
+  <div class="wrap">
+    @if (loading()) {
+      <div class="spinner"></div>
+    } @else if (error()) {
+      <div class="empty">
+        <h3>{{ error() }}</h3>
+      </div>
+    } @else if (team(); as t) {
+      <div class="profile-top">
+        <div class="avatar">{{ t.naziv.slice(0, 2).toUpperCase() }}</div>
+        <div class="profile-meta">
+          <h1>{{ t.naziv }}</h1>
+          @if (t.kapiten) {
+            <div class="dim sub">
+              Kapiten: {{ t.kapiten.ime }} · {{ players().length }} igraca u sastavu
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">Sastav</div>
+        @if (players().length === 0) {
+          <div class="empty"><h3>Kapiten jos nije dodao igrace</h3></div>
+        } @else {
+          @for (p of players(); track p.id) {
+            <a class="roster-row" [routerLink]="['/players', p.id]">
+              <span class="shirt mono">{{ p.broj_dresa }}</span>
+              <span class="pname">{{ p.ime }} {{ p.prezime }}</span>
+              <span
+                class="pill"
+                [class.pill-eliminaciona]="p.pozicija === 'GK'"
+                [class.pill-grupna]="p.pozicija !== 'GK'"
+              >
+                {{ positionLabel(p.pozicija) }}
+              </span>
+            </a>
+          }
+        }
+      </div>
+    }
+  </div>
+</div>

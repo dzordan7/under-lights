@@ -1,0 +1,180 @@
+<div class="section">
+  <div class="wrap">
+    <div class="page-head">
+      <h1>Moja ekipa</h1>
+      <p class="dim">Upravljaj sastavom i prijavi se na turnire.</p>
+    </div>
+
+    @if (loading()) {
+      <div class="spinner"></div>
+    } @else if (!team()) {
+      <div class="card card-pad" style="max-width: 420px">
+        <h3>Jos nemas ekipu</h3>
+        <p class="dim" style="margin: 8px 0 18px; font-size: 14px">
+          Napravi ekipu da bi mogao da dodajes igrace i prijavljujes se na turnire.
+        </p>
+        <form [formGroup]="createTeamForm" (ngSubmit)="submitCreateTeam()">
+          <div class="form-row">
+            <label for="naziv">Naziv ekipe</label>
+            <input
+              id="naziv"
+              class="field"
+              type="text"
+              formControlName="naziv"
+              placeholder="Sokolovi"
+            />
+          </div>
+          <button class="btn btn-primary btn-block" type="submit" [disabled]="creatingTeam()">
+            {{ creatingTeam() ? 'Kreiranje...' : 'Napravi ekipu' }}
+          </button>
+        </form>
+      </div>
+    } @else {
+      <div class="grid-wide">
+        <div class="panel">
+          <div class="panel-head">
+            {{ team()!.naziv }}
+            <button class="btn btn-secondary btn-sm" (click)="openAddPlayer()">Dodaj igraca</button>
+          </div>
+
+          @if (showPlayerForm()) {
+            <form class="player-form" [formGroup]="playerForm" (ngSubmit)="submitPlayer()">
+              <div class="form-grid">
+                <div class="form-row">
+                  <label for="ime">Ime</label>
+                  <input id="ime" class="field" type="text" formControlName="ime" />
+                </div>
+                <div class="form-row">
+                  <label for="prezime">Prezime</label>
+                  <input id="prezime" class="field" type="text" formControlName="prezime" />
+                </div>
+                <div class="form-row">
+                  <label for="broj_dresa">Broj dresa</label>
+                  <input id="broj_dresa" class="field" type="number" formControlName="broj_dresa" />
+                </div>
+                <div class="form-row">
+                  <label for="pozicija">Pozicija</label>
+                  <select id="pozicija" class="field" formControlName="pozicija">
+                    @for (opt of positionOptions; track opt.value) {
+                      <option [value]="opt.value">{{ opt.label }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="form-row">
+                  <label for="email">Email (opciono)</label>
+                  <input
+                    id="email"
+                    class="field"
+                    type="email"
+                    formControlName="email"
+                    placeholder="Za povezivanje naloga igraca"
+                  />
+                </div>
+                <div class="form-row">
+                  <label for="datum_rodjenja">Datum rodjenja (opciono)</label>
+                  <input
+                    id="datum_rodjenja"
+                    class="field"
+                    type="date"
+                    formControlName="datum_rodjenja"
+                  />
+                </div>
+                <div class="form-row">
+                  <label for="slika_url">Link do slike (opciono)</label>
+                  <input
+                    id="slika_url"
+                    class="field"
+                    type="url"
+                    formControlName="slika_url"
+                    placeholder=""
+                  />
+                </div>
+              </div>
+              <div class="form-actions">
+                <button class="btn btn-ghost btn-sm" type="button" (click)="cancelPlayerForm()">
+                  Otkazi
+                </button>
+                <button class="btn btn-primary btn-sm" type="submit" [disabled]="savingPlayer()">
+                  {{
+                    savingPlayer()
+                      ? 'Cuvanje...'
+                      : editingPlayerId()
+                        ? 'Sacuvaj izmene'
+                        : 'Dodaj igraca'
+                  }}
+                </button>
+              </div>
+            </form>
+          }
+
+          @if (players().length === 0) {
+            <div class="empty"><h3>Jos nema dodatih igraca</h3></div>
+          } @else {
+            @for (p of players(); track p.id) {
+              <div class="roster-row">
+                <span class="shirt mono">{{ p.broj_dresa }}</span>
+                <span class="pname">{{ p.ime }} {{ p.prezime }}</span>
+                <span class="pill pill-grupna">{{ positionLabel(p.pozicija) }}</span>
+                <span class="row-actions">
+                  <button class="btn btn-ghost btn-sm" (click)="openEditPlayer(p)">Izmeni</button>
+                  <button class="btn btn-danger btn-sm" (click)="removePlayer(p)">Ukloni</button>
+                </span>
+              </div>
+            }
+          }
+        </div>
+
+        <div class="side-col">
+          <div class="panel">
+            <div class="panel-head">Moje prijave</div>
+            @if (registrations().length === 0) {
+              <div class="empty"><h3>Jos se nisi prijavio ni na jedan turnir</h3></div>
+            } @else {
+              <table>
+                <tr>
+                  <th>Turnir</th>
+                  <th>Grad</th>
+                  <th>Status</th>
+                </tr>
+                @for (r of registrations(); track r.id) {
+                  <tr>
+                    <td>{{ r.tournament?.naziv }}</td>
+                    <td class="dim">{{ r.tournament?.grad }}</td>
+                    <td>
+                      <span class="pill" [class]="statusPillClass(r.status_prijave)">{{
+                        statusLabel(r.status_prijave)
+                      }}</span>
+                    </td>
+                  </tr>
+                }
+              </table>
+            }
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">Otvorene prijave</div>
+            @if (availableTournaments().length === 0) {
+              <div class="empty"><h3>Trenutno nema novih turnira za prijavu</h3></div>
+            } @else {
+              @for (t of availableTournaments(); track t.id) {
+                <div class="open-row">
+                  <div>
+                    <div class="ot-name">{{ t.naziv }}</div>
+                    <div class="dim ot-meta">{{ t.grad }}</div>
+                  </div>
+                  <button
+                    class="btn btn-primary btn-sm"
+                    (click)="registerTournament(t)"
+                    [disabled]="registeringId() === t.id"
+                  >
+                    {{ registeringId() === t.id ? 'Slanje...' : 'Prijavi ekipu' }}
+                  </button>
+                </div>
+              }
+            }
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

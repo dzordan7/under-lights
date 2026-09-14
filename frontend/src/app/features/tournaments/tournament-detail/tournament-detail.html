@@ -1,1 +1,228 @@
-<p>tournament-detail works!</p>
+<div class="section">
+  <div class="wrap">
+    @if (loading()) {
+      <div class="spinner"></div>
+    } @else if (error()) {
+      <div class="empty">
+        <h3>{{ error() }}</h3>
+      </div>
+    } @else if (tournament(); as t) {
+      <div class="t-head">
+        <h1>{{ t.naziv }}</h1>
+        <div class="meta dim">
+          <span>{{ t.grad }}</span>
+          @if (t.lokacija) {
+            <span>- {{ t.lokacija }}</span>
+          }
+          <span>- {{ t.broj_grupa }} grupe</span>
+          <span class="pill" [class]="statusPillClass(t.status)">{{ t.status }}</span>
+        </div>
+
+        @if (canRegister()) {
+          <div class="register-box">
+            <button
+              class="btn btn-secondary btn-sm"
+              (click)="register()"
+              [disabled]="registering()"
+            >
+              {{ registering() ? 'Slanje...' : 'Prijavi ekipu' }}
+            </button>
+            @if (registerMsg()) {
+              <span class="dim register-msg">{{ registerMsg() }}</span>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="tabs">
+        <button [class.on]="activeTab() === 'tabela'" (click)="setTab('tabela')">Tabela</button>
+        <button [class.on]="activeTab() === 'raspored'" (click)="setTab('raspored')">
+          Raspored
+        </button>
+        <button [class.on]="activeTab() === 'zreb'" (click)="setTab('zreb')">
+          Eliminaciona faza
+        </button>
+        <button [class.on]="activeTab() === 'statistika'" (click)="setTab('statistika')">
+          Statistika
+        </button>
+        <button [class.on]="activeTab() === 'nagrade'" (click)="setTab('nagrade')">Nagrade</button>
+      </div>
+
+      @if (activeTab() === 'tabela') {
+        @if (groupStandings().length === 0) {
+          <div class="empty">
+            <h3>Grupe jos nisu formirane</h3>
+            <p class="dim">Tabela ce se pojaviti nakon zreba.</p>
+          </div>
+        } @else {
+          <div class="grid grid-2">
+            @for (gs of groupStandings(); track gs.group.id) {
+              <div class="panel">
+                <div class="panel-head">{{ gs.group.naziv }}</div>
+                <div class="table-scroll">
+                  <table>
+                    <tr>
+                      <th>#</th>
+                      <th>Ekipa</th>
+                      <th class="num">Ut</th>
+                      <th class="num">GR</th>
+                      <th class="num">Bod</th>
+                    </tr>
+                    @for (row of gs.rows; track row.id; let i = $index) {
+                      <tr>
+                        <td class="num">{{ i + 1 }}</td>
+                        <td>{{ row.team.naziv }}</td>
+                        <td class="num">{{ row.odigrano }}</td>
+                        <td class="num">{{ row.postignuti_golovi - row.primljeni_golovi }}</td>
+                        <td class="num pts">{{ row.bodovi }}</td>
+                      </tr>
+                    }
+                  </table>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+
+      @if (activeTab() === 'raspored') {
+        <div class="panel">
+          <div class="panel-head">
+            Grupna faza
+            <span class="sub"
+              >{{ odigranoBroj() }} od {{ groupMatches().length }} meceva odigrano</span
+            >
+          </div>
+          @if (groupMatches().length === 0) {
+            <div class="empty"><h3>Raspored jos ne postoji</h3></div>
+          } @else {
+            @for (m of groupMatches(); track m.id) {
+              <div class="match-row">
+                <div class="side">{{ m.teamA.naziv }}</div>
+                @if (m.status === 'ODIGRAN') {
+                  <span class="score mono">{{ m.rezultat_a }}:{{ m.rezultat_b }}</span>
+                } @else {
+                  <span class="dim vs">vs</span>
+                }
+                <div class="side">{{ m.teamB.naziv }}</div>
+              </div>
+            }
+          }
+        </div>
+      }
+
+      @if (activeTab() === 'zreb') {
+        @if (bracketRounds().length === 0) {
+          <div class="empty">
+            <h3>Eliminaciona faza jos nije pokrenuta</h3>
+          </div>
+        } @else {
+          <div class="bracket-cols">
+            @for (round of bracketRounds(); track round.faza) {
+              <div class="bracket-col">
+                <div class="bracket-col-label">{{ round.label }}</div>
+                @for (m of round.matches; track m.id) {
+                  <div class="bracket-match">
+                    <div
+                      class="bm-row"
+                      [class.win]="m.status === 'ODIGRAN' && m.rezultat_a! > m.rezultat_b!"
+                    >
+                      <span>{{ m.teamA.naziv }}</span>
+                      <span class="mono">{{ m.status === 'ODIGRAN' ? m.rezultat_a : '-' }}</span>
+                    </div>
+                    <div
+                      class="bm-row"
+                      [class.win]="m.status === 'ODIGRAN' && m.rezultat_b! > m.rezultat_a!"
+                    >
+                      <span>{{ m.teamB.naziv }}</span>
+                      <span class="mono">{{ m.status === 'ODIGRAN' ? m.rezultat_b : '-' }}</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      }
+
+      @if (activeTab() === 'statistika') {
+        @if (!statsLoaded()) {
+          <div class="spinner"></div>
+        } @else {
+          <div class="grid grid-2">
+            <div class="panel">
+              <div class="panel-head">Najbolji strelci</div>
+              @if (topScorers().length === 0) {
+                <div class="empty"><h3>Jos nema unete statistike</h3></div>
+              } @else {
+                <table>
+                  <tr>
+                    <th>#</th>
+                    <th>Igrac</th>
+                    <th>Ekipa</th>
+                    <th class="num">Gol</th>
+                    <th class="num">As</th>
+                  </tr>
+                  @for (s of topScorers(); track s.player_id; let i = $index) {
+                    <tr>
+                      <td class="num">{{ i + 1 }}</td>
+                      <td>{{ s.ime }} {{ s.prezime }}</td>
+                      <td class="dim">{{ s.team_naziv }}</td>
+                      <td class="num pts">{{ s.golovi }}</td>
+                      <td class="num">{{ s.asistencije }}</td>
+                    </tr>
+                  }
+                </table>
+              }
+            </div>
+            <div class="panel">
+              <div class="panel-head">Najbolji golmani</div>
+              @if (topGoalkeepers().length === 0) {
+                <div class="empty"><h3>Jos nema unete statistike</h3></div>
+              } @else {
+                <table>
+                  <tr>
+                    <th>#</th>
+                    <th>Igrac</th>
+                    <th>Ekipa</th>
+                    <th class="num">CM</th>
+                    <th class="num">Odb</th>
+                  </tr>
+                  @for (k of topGoalkeepers(); track k.player_id; let i = $index) {
+                    <tr>
+                      <td class="num">{{ i + 1 }}</td>
+                      <td>{{ k.ime }} {{ k.prezime }}</td>
+                      <td class="dim">{{ k.team_naziv }}</td>
+                      <td class="num pts">{{ k.clean_sheets }}</td>
+                      <td class="num">{{ k.odbrane }}</td>
+                    </tr>
+                  }
+                </table>
+              }
+            </div>
+          </div>
+        }
+      }
+
+      @if (activeTab() === 'nagrade') {
+        @if (!awardsLoaded()) {
+          <div class="spinner"></div>
+        } @else if (awards().length === 0) {
+          <div class="empty">
+            <h3>Nagrade jos nisu dodeljene</h3>
+            <p class="dim">Dodeljuju se po zavrsetku turnira</p>
+          </div>
+        } @else {
+          <div class="grid grid-3">
+            @for (a of awards(); track a.id) {
+              <div class="card card-pad award-card">
+                <div class="pill pill-eliminaciona">{{ awardLabel(a.tip) }}</div>
+                <h3>{{ a.player.ime }} {{ a.player.prezime }}</h3>
+              </div>
+            }
+          </div>
+        }
+      }
+    }
+  </div>
+</div>

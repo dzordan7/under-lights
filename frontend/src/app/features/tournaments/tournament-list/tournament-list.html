@@ -2,14 +2,14 @@
   <div class="wrap">
     <div class="page-head">
       <h1>Turniri</h1>
-      <p class="dim">Pretraži po gradu ili prikaži samo one koji još primaju prijave.</p>
+      <p class="dim">Pretrazi po gradu ili po statusu</p>
     </div>
 
     <div class="filters">
       <input
         class="field"
         type="text"
-        placeholder="Grad (npr. Beograd)"
+        placeholder="Grad"
         [value]="grad()"
         (input)="onGradChange($any($event.target).value)"
       />
@@ -25,7 +25,6 @@
     } @else if (tournaments().length === 0) {
       <div class="empty">
         <h3>Nema turnira za ovu pretragu</h3>
-        <p class="dim">Promeni grad ili status da vidiš više rezultata.</p>
         <button class="btn btn-ghost btn-sm" (click)="clearFilters()">Poništi filtere</button>
       </div>
     } @else {

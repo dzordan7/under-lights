@@ -20,10 +20,16 @@
           routerLinkActive="on"
           [routerLinkActiveOptions]="{ exact: true }"
           (click)="zatvoriMeni()"
-          >Početna</a
+          >Pocetna</a
         >
         <a routerLink="/tournaments" routerLinkActive="on" (click)="zatvoriMeni()">Turniri</a>
         <a routerLink="/teams" routerLinkActive="on" (click)="zatvoriMeni()">Ekipe</a>
+        @if (authService.hasRole(Role.KAPITEN)) {
+          <a routerLink="/my-team" routerLinkActive="on" (click)="zatvoriMeni()">Moja ekipa</a>
+        }
+        @if (authService.hasRole(Role.ADMIN)) {
+          <a routerLink="/admin" routerLinkActive="on" (click)="zatvoriMeni()">Admin</a>
+        }
       </div>
 
       <div class="nav-actions">

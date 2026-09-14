@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+import { roleGuard } from './core/guards/role.guard';
+import { Role } from './core/models/user.model';
 
 export const routes: Routes = [
   {
@@ -40,6 +42,16 @@ export const routes: Routes = [
   {
     path: 'register',
     loadComponent: () => import('./features/auth/register/register').then((m) => m.Register),
+  },
+  {
+    path: 'my-team',
+    canActivate: [roleGuard(Role.KAPITEN)],
+    loadComponent: () => import('./features/my-team/my-team').then((m) => m.MyTeam),
+  },
+  {
+    path: 'admin',
+    canActivate: [roleGuard(Role.ADMIN)],
+    loadComponent: () => import('./features/admin/admin').then((m) => m.Admin),
   },
   { path: '**', redirectTo: '' },
 ];

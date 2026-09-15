@@ -2,7 +2,6 @@
   <div class="wrap">
     <div class="page-head">
       <h1>Moja ekipa</h1>
-      <p class="dim">Upravljaj sastavom i prijavi se na turnire.</p>
     </div>
 
     @if (loading()) {
@@ -61,17 +60,17 @@
                   </select>
                 </div>
                 <div class="form-row">
-                  <label for="email">Email (opciono)</label>
+                  <label for="email">Email</label>
                   <input
                     id="email"
                     class="field"
                     type="email"
                     formControlName="email"
-                    placeholder="Za povezivanje naloga igraca"
+                    placeholder=""
                   />
                 </div>
                 <div class="form-row">
-                  <label for="datum_rodjenja">Datum rodjenja (opciono)</label>
+                  <label for="datum_rodjenja">Datum rodjenja</label>
                   <input
                     id="datum_rodjenja"
                     class="field"
@@ -80,7 +79,7 @@
                   />
                 </div>
                 <div class="form-row">
-                  <label for="slika_url">Link do slike (opciono)</label>
+                  <label for="slika_url">Link do slike</label>
                   <input
                     id="slika_url"
                     class="field"

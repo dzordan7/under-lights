@@ -373,7 +373,7 @@ export class TournamentsService {
     );
     if (neodigrani.length > 0) {
       throw new BadRequestException(
-        `Nisu odigrani svi mecevi trenutne faze — ostalo je jos ${neodigrani.length}`,
+        `Nisu odigrani svi mecevi trenutne faze ostalo je jos ${neodigrani.length}`,
       );
     }
 
@@ -407,7 +407,7 @@ export class TournamentsService {
   private odrediPobednika(match: Match): Team {
     if (match.rezultat_a === match.rezultat_b) {
       throw new BadRequestException(
-        `Mec ${match.id} je zavrsen nereseno — u eliminacionoj fazi mora postojati pobednik`,
+        `Mec ${match.id} je zavrsen nereseno u eliminacionoj fazi mora postojati pobednik`,
       );
     }
     return match.rezultat_a! > match.rezultat_b! ? match.teamA : match.teamB;
